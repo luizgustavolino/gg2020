@@ -11,6 +11,9 @@ module.exports = {
   resolve: {
     extensions: [".ts", ".js"]
   },
+  node: {
+    global: true
+  },
   output: {
     path: path.resolve(__dirname, prod_Path),
     filename: "[name].[chunkhash].js"

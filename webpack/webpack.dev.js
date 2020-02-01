@@ -10,6 +10,9 @@ module.exports = {
   entry: {
     main: './' + src_Path + '/index.ts'
   },
+  node: {
+    global: true
+  },
   resolve: {
     extensions: ['.ts', '.js']
   },
@@ -30,8 +33,9 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      inject: false,
+      inject: true,
       hash: false,
+      minify: false,
       template: './' + src_Path + '/index.html',
       filename: 'index.html'
     })

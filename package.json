@@ -11,6 +11,7 @@
   "author": "luizgustavolino",
   "license": "MIT",
   "devDependencies": {
+    "@types/node": "^13.7.0",
     "autoprefixer": "^8.6.0",
     "awesome-typescript-loader": "^5.2.0",
     "babel-core": "^6.26.3",
@@ -30,8 +31,7 @@
     "webpack-md5-hash": "0.0.6"
   },
   "dependencies": {
-    "@types/box2d": "0.0.33",
-    "box2d": "^1.0.0",
-    "normalize.css": "^8.0.1"
+    "box2d.ts": "^1.0.2",
+    "lodash": "^4.17.15"
   }
 }
