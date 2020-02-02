@@ -4,6 +4,7 @@ import { World } from "./world";
 import { Camera, g_camera } from "./b2dUtils/debugDraw";
 
 export const hertz:number = 60.0
+export const screen = {width:720, height: 480}
 
 export class GameEngine {
 
@@ -42,7 +43,6 @@ export class GameEngine {
     private static instance: GameEngine = null;
     world:World
     camera:Camera
-    screen = {width:720, height: 480}
 
     private constructor() {
         this.world = new World()
