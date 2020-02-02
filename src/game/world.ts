@@ -3,6 +3,7 @@ import * as box2d from "box2d.ts"
 import { hertz } from "./engine"
 import { data } from "../assets/map";
 import { ObjectLayer, Point, Layer } from "./map";
+import { throws } from "assert";
 
 class ImageAsset {
     x:number
@@ -25,7 +26,7 @@ export class World {
     camera:Camera
     viewport:HTMLCanvasElement
     context:CanvasRenderingContext2D
-
+    
     ground:box2d.b2Body
     me:box2d.b2Body[]
 
@@ -65,7 +66,7 @@ export class World {
     private addMePartAt(x:number, y:number) : box2d.b2Body {
 
         const shape = new box2d.b2CircleShape();
-        shape.m_radius = 20;
+        shape.m_radius = 25;
 
         const fd = new box2d.b2FixtureDef();
         fd.shape = shape;
@@ -191,15 +192,31 @@ export class World {
         this.world.DrawDebugData()
     }
 
-    drawMe(){
-        
+    drawMe(frame:number){
+
+        this.context.save()
+        this.context.resetTransform()
+
         const x = 720.0/2.0
         const y = 468.0/2.0
+        this.context.translate(x,y)
+        
+        const x1 = this.me[0].GetPosition().x
+        const y1 = this.me[0].GetPosition().y
 
+        const x2 = this.me[1].GetPosition().x
+        const y2 = this.me[1].GetPosition().y
+
+        const angle = Math.atan2(y2 - y1, x2 - x1);
+        this.context.rotate(-angle)
+        
+        const anmFrame = Math.ceil((frame/18))%4
         this.images
-        .filter( image => image.src.endsWith("fish-bykah.png"))
+        .filter( image => image.src.endsWith("drivers.png"))
         .forEach( image => this.context
-            .drawImage(image, 0, 0, 72, 72, x, y, 72, 72) )
+            .drawImage(image, 72*anmFrame, 72, 72, 72, -36, -36, 72, 72))
+
+        this.context.restore()
     }
 
     draw(layer:("front"|"back")) {

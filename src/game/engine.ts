@@ -2,6 +2,7 @@
 import * as box2d from "box2d.ts";
 import { World } from "./world";
 import { Camera, g_camera } from "./b2dUtils/debugDraw";
+import { throws } from "assert";
 
 export const hertz:number = 60.0
 export const screen = {width:720, height: 480}
@@ -9,6 +10,7 @@ export const screen = {width:720, height: 480}
 export class GameEngine {
 
     fps_frames: number  = 0
+    frame_count: number = 0
     time_last: number   = null
     fps_time: number    = 0
     fps: number         = 0
@@ -62,6 +64,7 @@ export class GameEngine {
     }
 
     tick(){
+        this.fps_frames++
         this.world.tick()
     }
 
@@ -90,13 +93,11 @@ export class GameEngine {
         // draw world
         ctx.scale(1, -1)
         ctx.translate(0, -cam.m_height)
-        this.world.drawDebug()
+        //this.world.drawDebug()
 
-        ctx.save()
-        ctx.resetTransform()
-        this.world.drawMe()
-        ctx.restore()
-        
+        // draw char
+        this.world.drawMe(this.fps_frames)
+
         // draw vectors
         ctx.scale(1, -1)
         ctx.translate(0, -cam.m_height)
