@@ -66,9 +66,11 @@ export class GameEngine {
     }
 
     draw() {
+
         // clear canvas
         const ctx = this.world.context
-        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+        ctx.fillStyle = "#35CDC2";
+        ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height)
 
         // apply camera transforms
         ctx.save()
@@ -80,10 +82,26 @@ export class GameEngine {
         ctx.scale(1 / cam.m_zoom, 1 / cam.m_zoom)
         ctx.translate(-cam.m_center.x, -cam.m_center.y)
 
-        // draw world
-        this.world.draw()
-        ctx.restore()
+        // draw background
+        ctx.scale(1, -1)
+        ctx.translate(0, -cam.m_height)
+        this.world.draw("back")
 
+        // draw world
+        ctx.scale(1, -1)
+        ctx.translate(0, -cam.m_height)
+        this.world.drawDebug()
+
+        ctx.save()
+        ctx.resetTransform()
+        this.world.drawMe()
+        ctx.restore()
         
+        // draw vectors
+        ctx.scale(1, -1)
+        ctx.translate(0, -cam.m_height)
+        this.world.draw("front")
+
+        ctx.restore()
     }
 }

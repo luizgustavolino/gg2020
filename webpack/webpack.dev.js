@@ -1,5 +1,6 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const {
   prod_Path,
@@ -38,6 +39,9 @@ module.exports = {
       minify: false,
       template: './' + src_Path + '/index.html',
       filename: 'index.html'
-    })
+    }),
+    new CopyWebpackPlugin([
+      {from:'src/images', to:'./'} 
+    ]), 
   ]
 };

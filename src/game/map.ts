@@ -32,6 +32,7 @@ export class Layer {
     image?:string
     offsetx?:number
     offsety?:number
+    name:String
 }
 
 export class MapFile {

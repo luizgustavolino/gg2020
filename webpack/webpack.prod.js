@@ -2,6 +2,7 @@ const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const WebpackMd5Hash = require("webpack-md5-hash");
 const CleanWebpackPlugin = require("clean-webpack-plugin");
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 const { prod_Path, src_Path } = require("./path");
 
 module.exports = {
@@ -38,6 +39,9 @@ module.exports = {
       template: "./" + src_Path + "/index.html",
       filename: "index.html"
     }),
+    new CopyWebpackPlugin([
+      {from:'src/images', to:'./'} 
+    ]), 
     new WebpackMd5Hash()
   ]
 };
