@@ -7,4 +7,5 @@ function loop(time) {
     GameEngine.shared().loop(time);
 }
 
+GameEngine.shared().boot()
 window.requestAnimationFrame(loop);

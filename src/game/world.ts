@@ -4,15 +4,9 @@ import { hertz } from "./engine"
 import { data } from "../assets/map";
 import { Point, Layer } from "./utils/map";
 import { joy } from "./utils/joypad";
-
-
-const kDistanceBetweenMeBodies = 40
-const kBaseImpulse = 15000
-const kFirstAcellMultiplier = 100
-
-const kJumpImpulseY = 400000
-const kJumpImpulseX = kJumpImpulseY * 0.2
-const kMapLimitX =14080
+import { Bullet } from "./utils/bullet";
+import * as k from "./constants"
+import { Racer } from "./utils/racer";
 
 class ImageAsset {
     x:number
@@ -37,8 +31,10 @@ export class World {
     context:CanvasRenderingContext2D
     
     ground:box2d.b2Body
-    me:box2d.b2Body[]
-    bullets:box2d.b2Body[]
+    player:Racer
+    enemies:Racer[]
+
+    bullets:Bullet[]
 
     images:HTMLImageElement[]
     assets:{
@@ -69,44 +65,19 @@ export class World {
         imgsTags.forEach( img => this.images.push(img))
 
         this.assets = {back:[], front:[]}
+
         this.setupBoundaries()
         data.layers.forEach( l => this.getImageAssets(l, false))
-
-        this.addMe()
     }
 
-    private addMePartAt(x:number, y:number) : box2d.b2Body {
+    addRacers(){
+        this.player = new Racer({isPlayer: true, x: 32, y: 544, skin: 0})
 
-        const shape = new box2d.b2CircleShape();
-        shape.m_radius = 20;
-
-        const fd = new box2d.b2FixtureDef();
-        fd.shape = shape;
-        fd.density  = 18.0;
-        fd.friction = 0.008;
-  
-        const bd = new box2d.b2BodyDef()
-        bd.type = box2d.b2BodyType.b2_dynamicBody
-        bd.position.Set(x, y)
-
-        const body = this.world.CreateBody(bd)
-        body.SetFixedRotation(true)
-        body.CreateFixture(fd)
-        return body
-
-    }
-
-    private addMe(){
-
-        let front = this.addMePartAt(60, 200)
-        let back = this.addMePartAt(60-kDistanceBetweenMeBodies, 200)
-
-        const jd = new box2d.b2DistanceJointDef()
-        jd.Initialize(front, back,
-            front.GetWorldCenter(),
-            back.GetWorldCenter())
-        this.world.CreateJoint(jd);
-        this.me = [back, front]
+        this.enemies =[
+            new Racer({isPlayer: false, x: 32, y: 708, skin: 1}),
+            new Racer({isPlayer: false, x: 32, y: 396, skin: 2}),
+            new Racer({isPlayer: false, x: 32, y: 236, skin: 3})
+        ]
     }
 
     private getImageAssets(layer:Layer, back:boolean){
@@ -183,86 +154,35 @@ export class World {
         bd.CreateFixture(shape, 0.0)
     }
 
-    public tick(){
+    public tick(frame){
 
-        let max = kMapLimitX
+        let max = k.mapLimitX
         
         for(var i = 0 ; i < 3; i++) {
 
             this.world.Step( 1.0/hertz*2, 16, 6, 6)
 
-            if (joy().jump.isDown()) {
-                const centerA = this.me[0].GetWorldCenter()
-                const centerB = this.me[1].GetWorldCenter()
-                this.me[0].ApplyLinearImpulse({x:kJumpImpulseX, y:kJumpImpulseY}, centerA)
-                this.me[1].ApplyLinearImpulse({x:kJumpImpulseX, y:kJumpImpulseY}, centerB)
-            }
-
             if (joy().break.isDown() || joy().break.isPressed()) {
-                const impulseA = this.me[0].GetLinearVelocity()
-                const impulseB = this.me[1].GetLinearVelocity()
-                this.me[0].SetLinearVelocity({x:impulseB.x * 0.95, y:impulseA.y})
-                this.me[1].SetLinearVelocity({x:impulseB.x * 0.95, y:impulseB.y})
-                
+                this.player.break()
+            } else if (joy().jump.isDown()) {
+                this.player.jump()
             } else if (joy().accelerate.isPressed()) {
-                const center = this.me[1].GetWorldCenter()
-                this.me[1].ApplyLinearImpulse(
-                    {x:kBaseImpulse, y:0}, center)
-
+                this.player.accelerate(1.0)
             } else if (joy().accelerate.isDown()) {
-                const center = this.me[1].GetWorldCenter()
-                this.me[1].ApplyLinearImpulse(
-                    {x:kBaseImpulse*kFirstAcellMultiplier, y:0}, center)
+                this.player.accelerate(k.firstAcellMultiplier)
             } 
-            
-            let pA = this.me[1].GetPosition()
-            let pB = this.me[0].GetPosition()
-
-            if (pA.x > max) {
-                this.me[1].SetPosition({x:0, y:pA.y})
-                this.me[0].SetPosition({x:-kDistanceBetweenMeBodies, y:pB.y})
-            }
-
         }
 
-        this.bullets.forEach( bullet => {
-            const a = bullet.GetAngle()
-            bullet.SetLinearVelocity({x:Math.cos(a)*5000, y: Math.sin(a)*5000})
-        })
+        this.player.tick(frame)
+        this.enemies.forEach( e => e.tick(frame))
 
+        this.bullets.forEach(bullet => bullet.tick())
         if (joy().fire.isDown()) {
-            this.doFire()
+            this.bullets.push(this.player.fire())
         }
 
-        this.camera.m_center = this.me[0].GetPosition()
+        this.camera.m_center = this.player.center()
         
-    }
-
-    doFire() {
-
-        const a = this.meAngle()
-        const x = this.me[1].GetPosition().x + Math.cos(a) * 30
-        const y = this.me[1].GetPosition().y + Math.sin(a) * 30
-
-        const shape = new box2d.b2CircleShape();
-        shape.m_radius = 5;
-
-        const fd = new box2d.b2FixtureDef();
-        fd.shape = shape;
-        fd.density  = 5.0;
-        fd.friction = 0.0001;
-  
-        const bd = new box2d.b2BodyDef()
-        bd.type = box2d.b2BodyType.b2_dynamicBody
-        bd.position.Set(x, y)
-
-        const body = this.world.CreateBody(bd)
-        body.CreateFixture(fd)
-        body.SetAngle(a)
-        body.SetFixedRotation(true)
-        body.SetLinearVelocity({x:Math.cos(a) * 4000, y:Math.sin(a) * 4000})
-        
-        this.bullets.push(body)
     }
 
     drawBackground() {
@@ -273,39 +193,21 @@ export class World {
         
     }
 
+    meAngle():number {
+        return this.player.angle()
+    }
+
     drawDebug() {
         this.world.DrawDebugData()
     }
 
     drawMe(frame:number){
-
-        this.context.save()
-        this.context.resetTransform()
-
-        const x = 720.0/2.0 + 30
-        const y = 468.0/2.0
-        this.context.translate(x,y)
-    
-        this.context.rotate(-this.meAngle())
-        
-        const anmFrame = Math.ceil((frame/18))%4
-        this.images
-        .filter( image => image.src.endsWith("drivers.png"))
-        .forEach( image => this.context
-            .drawImage(image, 72*anmFrame, 0, 72, 72, -36, -36, 72, 72))
-
-        this.context.restore()
+        this.player.draw(frame)
+        this.enemies.forEach(e => e.draw(frame))
     }
 
-    meAngle():number {
-        const x1 = this.me[0].GetPosition().x
-        const y1 = this.me[0].GetPosition().y
-
-        const x2 = this.me[1].GetPosition().x
-        const y2 = this.me[1].GetPosition().y
-
-        const angle = Math.atan2(y2 - y1, x2 - x1)
-        return angle
+    drawBullets(frame:number){
+        this.bullets.forEach( b => b.draw())
     }
 
     draw(layer:("front"|"back")) {
@@ -316,8 +218,8 @@ export class World {
             case "back":  assets = this.assets.back; break;
         }
         
-        const padding = 1000
-        const mex = this.me[0].GetPosition().x
+        const padding = k.screenPadding
+        const mex = this.player.center().x
 
         assets.filter( asset => {    
             return asset.x > mex - padding && asset.x < mex + padding
@@ -328,13 +230,13 @@ export class World {
         assets.filter( asset => {
             return asset.x > - padding &&  mex < padding
         }).forEach( asset => {
-            this.context.drawImage(asset.tag, asset.x - kMapLimitX, asset.y)
+            this.context.drawImage(asset.tag, asset.x - k.mapLimitX, asset.y)
         })
 
         assets.filter( asset => {
-            return asset.x < padding && mex > (kMapLimitX - padding)
+            return asset.x < padding && mex > (k.mapLimitX - padding)
         }).forEach( asset => {
-            this.context.drawImage(asset.tag, kMapLimitX + asset.x, asset.y)
+            this.context.drawImage(asset.tag, k.mapLimitX + asset.x, asset.y)
         })
     }
 }

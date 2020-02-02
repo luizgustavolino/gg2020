@@ -16,9 +16,7 @@ export class GameEngine {
     joypad:Joypad
 
     private constructor() {
-        this.world = new World()
-        this.camera = g_camera
-        this.joypad = new Joypad()
+        
     }
     
     public static shared(): GameEngine {
@@ -64,11 +62,15 @@ export class GameEngine {
 
     boot(){
         console.log("booting engine from singleton")
+        this.world = new World()
+        this.world.addRacers()
+        this.camera = g_camera
+        this.joypad = new Joypad()
     }
 
     tick(){
         this.fps_frames++
-        this.world.tick()
+        this.world.tick(this.fps_frames)
         this.joypad.tick()
     }
 
@@ -83,6 +85,7 @@ export class GameEngine {
 
         ctx.translate(0.5 * ctx.canvas.width, 0.5 * ctx.canvas.height)
         ctx.scale(1, -1);
+
         const cam = this.world.camera
         const s = 0.5 * cam.m_height / cam.m_extent
         ctx.scale(s, s)
@@ -102,8 +105,9 @@ export class GameEngine {
         ctx.translate(0, -cam.m_height)
         this.world.drawDebug()
 
-        // draw char
+        // draw char & bullets
         this.world.drawMe(this.fps_frames)
+        this.world.drawBullets(this.fps_frames)
 
         // draw vectors
         ctx.scale(1, -1)
