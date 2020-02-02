@@ -2901,6 +2901,18 @@ export const data = <MapFile> <unknown>
                  "id":254,
                  "layers":[
                         {
+                         "id":674,
+                         "image":"images\/up2.png",
+                         "name":"Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Copy of Up2",
+                         "offsetx":2944,
+                         "offsety":608,
+                         "opacity":1,
+                         "type":"imagelayer",
+                         "visible":true,
+                         "x":0,
+                         "y":0
+                        }, 
+                        {
                          "id":201,
                          "image":"images\/peak.png",
                          "name":"Top",
@@ -7103,19 +7115,23 @@ export const data = <MapFile> <unknown>
                          "y":0
                         }, 
                         {
-                         "x":3107.03,
-                         "y":124.97
+                         "x":3008,
+                         "y":32
+                        }, 
+                        {
+                         "x":3136,
+                         "y":32
                         }, 
                         {
                          "x":3264,
                          "y":0
                         }, 
                         {
-                         "x":3584,
-                         "y":-128
+                         "x":3552,
+                         "y":-96
                         }, 
                         {
-                         "x":3808,
+                         "x":3744,
                          "y":-160
                         }, 
                         {
@@ -7164,7 +7180,7 @@ export const data = <MapFile> <unknown>
                         }, 
                         {
                          "x":5568,
-                         "y":-96
+                         "y":-160
                         }, 
                         {
                          "x":5696,
@@ -7180,7 +7196,7 @@ export const data = <MapFile> <unknown>
                         }, 
                         {
                          "x":6176,
-                         "y":0
+                         "y":-64
                         }, 
                         {
                          "x":6336,
@@ -7907,11 +7923,11 @@ export const data = <MapFile> <unknown>
                          "y":0
                         }, 
                         {
-                         "x":3584,
-                         "y":-128
+                         "x":3616,
+                         "y":-64
                         }, 
                         {
-                         "x":3808,
+                         "x":3744,
                          "y":-160
                         }, 
                         {
@@ -8183,8 +8199,8 @@ export const data = <MapFile> <unknown>
          "x":0,
          "y":0
         }],
- "nextlayerid":672,
- "nextobjectid":25,
+ "nextlayerid":675,
+ "nextobjectid":25, 
  "orientation":"orthogonal",
  "renderorder":"right-up",
  "tiledversion":"1.3.2",

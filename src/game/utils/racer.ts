@@ -95,38 +95,24 @@ export class Racer {
     draw(frame){
 
         const anmFrame = Math.ceil((frame/18))%4
-
-        if (this.isPlayer) {
-
-            this.context.save()
-            this.context.resetTransform()
-            
-            const x = 720.0/2.0
-            const y = 468.0/2.0
-            this.context.translate(x,y)
+        let mid = this.front.GetWorldCenter()
+        let midX = mid.x - 20
         
-            this.context.rotate( -this.angle() )
-            
-            this.context.drawImage(this.image,
-                72*anmFrame, 72 * this.skin, 72, 72, -36, -36, 72, 72)
-    
-            this.context.restore()
+        this.context.save()
+        this.context.translate(mid.x, mid.y)
+        this.context.rotate(this.angle())
 
-        } else { 
+        const fs = 40
 
-            const p = this.front.GetPosition()
-            this.context.save()
+        this.context.scale(1,-1)
+        this.context.translate(0, -fs)
 
-            this.context.translate(p.x + (-36), p.y + (-36) + 72)
-            this.context.rotate(this.angle())
-            this.context.scale(0.62, -0.62)
+        this.context.drawImage(
+            this.image, 72*anmFrame, 72 * this.skin, 72, 72, 
+            -(fs/2), fs/2, fs, fs)
 
-            this.context.drawImage(this.image,
-                72*anmFrame, 72 * this.skin, 72, 72,
-                0, 0, 72, 72)
-            
-            this.context.restore()
-        }
+        this.context.restore()
+
     }
 
     accelerate(multiplier:number) {
@@ -143,10 +129,10 @@ export class Racer {
     }
 
     jump() {
-        const centerA = this.back.GetWorldCenter()
+        const centerA = this.back.GetWorldCenter() 
         const centerB = this.front.GetWorldCenter()
-        this.back.ApplyLinearImpulse({x:k.jumpImpulseX * 0.9, y:k.jumpImpulseY * 0.9}, centerA)
-        this.front.ApplyLinearImpulse({x:k.jumpImpulseX, y:k.jumpImpulseY}, centerB)
+        this.back.ApplyLinearImpulse({x: k.jumpImpulseX, y: k.jumpImpulseY}, centerA)
+        this.front.ApplyLinearImpulse({x: k.jumpImpulseX, y: k.jumpImpulseY}, centerB)
     }
 
         

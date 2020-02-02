@@ -100,16 +100,15 @@ export class GameEngine {
         this.world.draw("back")
         ctx.globalAlpha = 1.0
         
-        // draw world
+        // draw world, char & bullets
         ctx.scale(1, -1)
         ctx.translate(0, -cam.m_height)
-        this.world.drawDebug()
-
-        // draw char & bullets
+ 
+        //this.world.drawDebug()
         this.world.drawMe(this.fps_frames)
         this.world.drawBullets(this.fps_frames)
 
-        // draw vectors
+        // draw foreground
         ctx.scale(1, -1)
         ctx.translate(0, -cam.m_height)
         this.world.draw("front")
