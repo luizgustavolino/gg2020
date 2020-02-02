@@ -1,9 +1,9 @@
-import { DebugDraw, Camera, g_camera } from "./b2dUtils/debugDraw";
+import { DebugDraw, Camera, g_camera } from "./utils/debugDraw";
 import * as box2d from "box2d.ts"
 import { hertz } from "./engine"
 import { data } from "../assets/map";
-import { ObjectLayer, Point, Layer } from "./map";
-import { throws } from "assert";
+import { Point, Layer } from "./utils/map";
+import { joy } from "./utils/joypad";
 
 class ImageAsset {
     x:number
@@ -66,18 +66,19 @@ export class World {
     private addMePartAt(x:number, y:number) : box2d.b2Body {
 
         const shape = new box2d.b2CircleShape();
-        shape.m_radius = 25;
+        shape.m_radius = 20;
 
         const fd = new box2d.b2FixtureDef();
         fd.shape = shape;
-        fd.density  = 1.0;
-        fd.friction = 0.001;
+        fd.density  = 18.0;
+        fd.friction = 0.008;
   
         const bd = new box2d.b2BodyDef()
         bd.type = box2d.b2BodyType.b2_dynamicBody
         bd.position.Set(x, y)
 
         const body = this.world.CreateBody(bd)
+        body.SetFixedRotation(true)
         body.CreateFixture(fd)
         return body
 
@@ -85,8 +86,8 @@ export class World {
 
     private addMe(){
 
-        let front = this.addMePartAt(100,200)
-        let back = this.addMePartAt(80,200)
+        let front = this.addMePartAt(60, 200)
+        let back = this.addMePartAt(20, 200)
 
         const jd = new box2d.b2DistanceJointDef()
         jd.Initialize(front, back,
@@ -176,15 +177,72 @@ export class World {
         for(var i = 0 ; i < 3; i++) {
 
             this.world.Step( 1.0/hertz*2, 16, 6, 6)
-            this.me[1].ApplyLinearImpulse({x:3000, y:0}, this.me[1].GetWorldCenter())
 
+            if (joy().jump.isDown()) {
+                const centerA = this.me[0].GetWorldCenter()
+                const centerB = this.me[1].GetWorldCenter()
+                this.me[0].ApplyLinearImpulse({x:0, y:400000}, centerA)
+                this.me[1].ApplyLinearImpulse({x:0, y:400000}, centerB)
+            }
+
+            if (joy().break.isDown() || joy().break.isPressed()) {
+                const impulseA = this.me[0].GetLinearVelocity()
+                const impulseB = this.me[1].GetLinearVelocity()
+                this.me[0].SetLinearVelocity({x:impulseB.x * 0.95, y:impulseA.y})
+                this.me[1].SetLinearVelocity({x:impulseB.x * 0.95, y:impulseB.y})
+                
+            } else if (joy().accelerate.isPressed()) {
+                const center = this.me[1].GetWorldCenter()
+                this.me[1].ApplyLinearImpulse({x:10000, y:0}, center)
+            } else if (joy().accelerate.isDown()) {
+                const center = this.me[1].GetWorldCenter()
+                this.me[1].ApplyLinearImpulse({x:20000, y:0}, center)
+            } 
+            
             this.me.forEach( body => {
                 let p = body.GetPosition()
                 body.SetPosition({x: p.x % max, y: p.y})
             })
         }
 
+        if (joy().fire.isDown()) {
+            this.doFire()
+        }
+
         this.camera.m_center = this.me[0].GetPosition()
+        
+    }
+
+    doFire() {
+
+        const x = this.me[1].GetPosition().x + 30
+        const y = this.me[1].GetPosition().y
+
+        const shape = new box2d.b2CircleShape();
+        shape.m_radius = 5;
+
+        const fd = new box2d.b2FixtureDef();
+        fd.shape = shape;
+        fd.density  = 5.0;
+        fd.friction = 0.0001;
+  
+        const bd = new box2d.b2BodyDef()
+        bd.type = box2d.b2BodyType.b2_dynamicBody
+        bd.position.Set(x, y)
+
+        const body = this.world.CreateBody(bd)
+        body.CreateFixture(fd)
+        body.SetLinearVelocity({x:200, y:0})
+        body.SetFixedRotation(true)
+
+        return body
+    }
+
+    drawBackground() {
+        this.images
+        .filter( image => image.src.endsWith("background.png"))
+        .forEach( image => this.context
+            .drawImage(image, 0, 0))
         
     }
 
@@ -197,7 +255,7 @@ export class World {
         this.context.save()
         this.context.resetTransform()
 
-        const x = 720.0/2.0
+        const x = 720.0/2.0 + 30
         const y = 468.0/2.0
         this.context.translate(x,y)
         
@@ -214,7 +272,7 @@ export class World {
         this.images
         .filter( image => image.src.endsWith("drivers.png"))
         .forEach( image => this.context
-            .drawImage(image, 72*anmFrame, 72, 72, 72, -36, -36, 72, 72))
+            .drawImage(image, 72*anmFrame, 0, 72, 72, -36, -36, 72, 72))
 
         this.context.restore()
     }
@@ -226,13 +284,11 @@ export class World {
             case "front": assets = this.assets.front; break;
             case "back":  assets = this.assets.back; break;
         }
-
-        assets
-        .filter( asset => {
+        const padding = 1000
+        assets.filter( asset => {
             const mex = this.me[0].GetPosition().x
-            return asset.x > mex - 900 && asset.x < mex + 900
-        })
-        .forEach( asset => 
+            return asset.x > mex - padding && asset.x < mex + padding
+        }).forEach( asset => 
             this.context.drawImage(asset.tag, asset.x, asset.y)
         )
     }

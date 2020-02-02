@@ -1,4 +1,4 @@
-import { MapFile } from "../game/map";
+import { MapFile } from "../game/utils/map";
 
 export const data = <MapFile> <unknown>
 

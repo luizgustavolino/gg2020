@@ -1,7 +1,7 @@
 
-import * as box2d from "box2d.ts";
 import { World } from "./world";
-import { Camera, g_camera } from "./b2dUtils/debugDraw";
+import { Camera, g_camera } from "./utils/debugDraw";
+import { Joypad } from "./utils/joypad";
 import { throws } from "assert";
 
 export const hertz:number = 60.0
@@ -9,11 +9,31 @@ export const screen = {width:720, height: 480}
 
 export class GameEngine {
 
-    fps_frames: number  = 0
-    frame_count: number = 0
-    time_last: number   = null
-    fps_time: number    = 0
-    fps: number         = 0
+    private static instance: GameEngine = null;
+
+    world:World
+    camera:Camera
+    joypad:Joypad
+
+    private constructor() {
+        this.world = new World()
+        this.camera = g_camera
+        this.joypad = new Joypad()
+    }
+    
+    public static shared(): GameEngine {
+        if (!GameEngine.instance) {
+            GameEngine.instance = new GameEngine();
+        }
+
+        return GameEngine.instance;
+    }
+
+    private fps_frames: number  = 0
+    private frame_count: number = 0
+    private time_last: number   = null
+    private fps_time: number    = 0
+    private fps: number         = 0
 
     loop(time: number) {
         
@@ -42,23 +62,6 @@ export class GameEngine {
         
     }
 
-    private static instance: GameEngine = null;
-    world:World
-    camera:Camera
-
-    private constructor() {
-        this.world = new World()
-        this.camera = g_camera
-    }
-    
-    public static shared(): GameEngine {
-        if (!GameEngine.instance) {
-            GameEngine.instance = new GameEngine();
-        }
-
-        return GameEngine.instance;
-    }
-
     boot(){
         console.log("booting engine from singleton")
     }
@@ -66,17 +69,18 @@ export class GameEngine {
     tick(){
         this.fps_frames++
         this.world.tick()
+        this.joypad.tick()
     }
 
     draw() {
 
         // clear canvas
         const ctx = this.world.context
-        ctx.fillStyle = "#35CDC2";
-        ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+        this.world.drawBackground()
 
         // apply camera transforms
         ctx.save()
+
         ctx.translate(0.5 * ctx.canvas.width, 0.5 * ctx.canvas.height)
         ctx.scale(1, -1);
         const cam = this.world.camera
@@ -88,12 +92,15 @@ export class GameEngine {
         // draw background
         ctx.scale(1, -1)
         ctx.translate(0, -cam.m_height)
-        this.world.draw("back")
 
+        ctx.globalAlpha = 0.8
+        this.world.draw("back")
+        ctx.globalAlpha = 1.0
+        
         // draw world
         ctx.scale(1, -1)
         ctx.translate(0, -cam.m_height)
-        //this.world.drawDebug()
+        this.world.drawDebug()
 
         // draw char
         this.world.drawMe(this.fps_frames)
