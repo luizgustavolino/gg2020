@@ -5,6 +5,15 @@ import { data } from "../assets/map";
 import { Point, Layer } from "./utils/map";
 import { joy } from "./utils/joypad";
 
+
+const kDistanceBetweenMeBodies = 40
+const kBaseImpulse = 15000
+const kFirstAcellMultiplier = 100
+
+const kJumpImpulseY = 400000
+const kJumpImpulseX = kJumpImpulseY * 0.2
+const kMapLimitX =14080
+
 class ImageAsset {
     x:number
     y:number
@@ -90,7 +99,7 @@ export class World {
     private addMe(){
 
         let front = this.addMePartAt(60, 200)
-        let back = this.addMePartAt(20, 200)
+        let back = this.addMePartAt(60-kDistanceBetweenMeBodies, 200)
 
         const jd = new box2d.b2DistanceJointDef()
         jd.Initialize(front, back,
@@ -175,7 +184,8 @@ export class World {
     }
 
     public tick(){
-        let max = 14080
+
+        let max = kMapLimitX
         
         for(var i = 0 ; i < 3; i++) {
 
@@ -184,8 +194,8 @@ export class World {
             if (joy().jump.isDown()) {
                 const centerA = this.me[0].GetWorldCenter()
                 const centerB = this.me[1].GetWorldCenter()
-                this.me[0].ApplyLinearImpulse({x:0, y:400000}, centerA)
-                this.me[1].ApplyLinearImpulse({x:0, y:400000}, centerB)
+                this.me[0].ApplyLinearImpulse({x:kJumpImpulseX, y:kJumpImpulseY}, centerA)
+                this.me[1].ApplyLinearImpulse({x:kJumpImpulseX, y:kJumpImpulseY}, centerB)
             }
 
             if (joy().break.isDown() || joy().break.isPressed()) {
@@ -196,16 +206,23 @@ export class World {
                 
             } else if (joy().accelerate.isPressed()) {
                 const center = this.me[1].GetWorldCenter()
-                this.me[1].ApplyLinearImpulse({x:10000, y:0}, center)
+                this.me[1].ApplyLinearImpulse(
+                    {x:kBaseImpulse, y:0}, center)
+
             } else if (joy().accelerate.isDown()) {
                 const center = this.me[1].GetWorldCenter()
-                this.me[1].ApplyLinearImpulse({x:20000, y:0}, center)
+                this.me[1].ApplyLinearImpulse(
+                    {x:kBaseImpulse*kFirstAcellMultiplier, y:0}, center)
             } 
             
-            this.me.forEach( body => {
-                let p = body.GetPosition()
-                body.SetPosition({x: p.x % max, y: p.y})
-            })
+            let pA = this.me[1].GetPosition()
+            let pB = this.me[0].GetPosition()
+
+            if (pA.x > max) {
+                this.me[1].SetPosition({x:0, y:pA.y})
+                this.me[0].SetPosition({x:-kDistanceBetweenMeBodies, y:pB.y})
+            }
+
         }
 
         this.bullets.forEach( bullet => {
@@ -298,12 +315,26 @@ export class World {
             case "front": assets = this.assets.front; break;
             case "back":  assets = this.assets.back; break;
         }
+        
         const padding = 1000
-        assets.filter( asset => {
-            const mex = this.me[0].GetPosition().x
+        const mex = this.me[0].GetPosition().x
+
+        assets.filter( asset => {    
             return asset.x > mex - padding && asset.x < mex + padding
-        }).forEach( asset => 
+        }).forEach( asset => {
             this.context.drawImage(asset.tag, asset.x, asset.y)
-        )
+        })
+
+        assets.filter( asset => {
+            return asset.x > - padding &&  mex < padding
+        }).forEach( asset => {
+            this.context.drawImage(asset.tag, asset.x - kMapLimitX, asset.y)
+        })
+
+        assets.filter( asset => {
+            return asset.x < padding && mex > (kMapLimitX - padding)
+        }).forEach( asset => {
+            this.context.drawImage(asset.tag, kMapLimitX + asset.x, asset.y)
+        })
     }
 }
