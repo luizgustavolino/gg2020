@@ -29,6 +29,7 @@ export class World {
     
     ground:box2d.b2Body
     me:box2d.b2Body[]
+    bullets:box2d.b2Body[]
 
     images:HTMLImageElement[]
     assets:{
@@ -52,7 +53,9 @@ export class World {
         this.context = this.viewport.getContext("2d")
         this.debugDraw.m_ctx = this.context
 
+        this.bullets = []
         this.images = []
+        
         let imgsTags =  document.querySelectorAll('img')
         imgsTags.forEach( img => this.images.push(img))
 
@@ -205,6 +208,11 @@ export class World {
             })
         }
 
+        this.bullets.forEach( bullet => {
+            const a = bullet.GetAngle()
+            bullet.SetLinearVelocity({x:Math.cos(a)*5000, y: Math.sin(a)*5000})
+        })
+
         if (joy().fire.isDown()) {
             this.doFire()
         }
@@ -215,8 +223,9 @@ export class World {
 
     doFire() {
 
-        const x = this.me[1].GetPosition().x + 30
-        const y = this.me[1].GetPosition().y
+        const a = this.meAngle()
+        const x = this.me[1].GetPosition().x + Math.cos(a) * 30
+        const y = this.me[1].GetPosition().y + Math.sin(a) * 30
 
         const shape = new box2d.b2CircleShape();
         shape.m_radius = 5;
@@ -232,10 +241,11 @@ export class World {
 
         const body = this.world.CreateBody(bd)
         body.CreateFixture(fd)
-        body.SetLinearVelocity({x:200, y:0})
+        body.SetAngle(a)
         body.SetFixedRotation(true)
-
-        return body
+        body.SetLinearVelocity({x:Math.cos(a) * 4000, y:Math.sin(a) * 4000})
+        
+        this.bullets.push(body)
     }
 
     drawBackground() {
@@ -258,15 +268,8 @@ export class World {
         const x = 720.0/2.0 + 30
         const y = 468.0/2.0
         this.context.translate(x,y)
-        
-        const x1 = this.me[0].GetPosition().x
-        const y1 = this.me[0].GetPosition().y
-
-        const x2 = this.me[1].GetPosition().x
-        const y2 = this.me[1].GetPosition().y
-
-        const angle = Math.atan2(y2 - y1, x2 - x1);
-        this.context.rotate(-angle)
+    
+        this.context.rotate(-this.meAngle())
         
         const anmFrame = Math.ceil((frame/18))%4
         this.images
@@ -275,6 +278,17 @@ export class World {
             .drawImage(image, 72*anmFrame, 0, 72, 72, -36, -36, 72, 72))
 
         this.context.restore()
+    }
+
+    meAngle():number {
+        const x1 = this.me[0].GetPosition().x
+        const y1 = this.me[0].GetPosition().y
+
+        const x2 = this.me[1].GetPosition().x
+        const y2 = this.me[1].GetPosition().y
+
+        const angle = Math.atan2(y2 - y1, x2 - x1)
+        return angle
     }
 
     draw(layer:("front"|"back")) {
