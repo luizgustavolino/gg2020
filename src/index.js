@@ -1,0 +1,8 @@
+import { GameEngine } from './game/engine';
+function loop(time) {
+    window.requestAnimationFrame(loop);
+    GameEngine.shared().loop(time);
+}
+GameEngine.shared().boot();
+window.requestAnimationFrame(loop);
+//# sourceMappingURL=index.js.map

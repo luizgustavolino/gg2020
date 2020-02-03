@@ -7,6 +7,7 @@ import { joy } from "./utils/joypad";
 import { Bullet } from "./utils/bullet";
 import * as k from "./constants"
 import { Racer } from "./utils/racer";
+import { b2FixtureDef } from "box2d.ts";
 
 class ImageAsset {
     x:number
@@ -45,7 +46,7 @@ export class World {
     constructor(){
 
         this.debugDraw = new DebugDraw()
-        const gravity = new box2d.b2Vec2(0, -10)
+        const gravity = new box2d.b2Vec2(0, -8.0)
         this.world = new box2d.b2World(gravity)
         this.world.SetAllowSleeping(true)
         this.world.SetWarmStarting(true)
@@ -145,13 +146,23 @@ export class World {
     }
 
     private addFixture(ax:number, ay:number, bx:number, by:number) {
+        
         const bdf = new box2d.b2BodyDef()
         let bd = this.world.CreateBody(bdf)
+
         const shape = new box2d.b2EdgeShape()
         shape.Set(
             new box2d.b2Vec2(ax, screen.height - ay),
             new box2d.b2Vec2(bx, screen.height - by))
-        bd.CreateFixture(shape, 0.0)
+
+        const fd = new b2FixtureDef();
+        fd.shape = shape;
+        fd.friction = 0.0;
+
+        fd.filter.categoryBits  = k.colide.scenery
+        fd.filter.maskBits      = k.colide.racers | k.colide.bullets
+
+        bd.CreateFixture(fd)
     }
 
     public tick(frame){
@@ -160,12 +171,14 @@ export class World {
         
         for(var i = 0 ; i < 3; i++) {
 
-            this.world.Step( 1.0/hertz*2, 16, 6, 6)
+            this.world.Step( 1.0/hertz*3, 8, 3, 3)
+
+            if (joy().jump.isDown()) {
+                this.player.jump()
+            } 
 
             if (joy().break.isDown() || joy().break.isPressed()) {
                 this.player.break()
-            } else if (joy().jump.isDown()) {
-                this.player.jump()
             } else if (joy().accelerate.isPressed()) {
                 this.player.accelerate(1.0)
             } else if (joy().accelerate.isDown()) {
@@ -201,9 +214,9 @@ export class World {
         this.world.DrawDebugData()
     }
 
-    drawMe(frame:number){
-        this.player.draw(frame)
+    drawRacers(frame:number){
         this.enemies.forEach(e => e.draw(frame))
+        this.player.draw(frame)
     }
 
     drawBullets(frame:number){
@@ -217,6 +230,8 @@ export class World {
             case "front": assets = this.assets.front; break;
             case "back":  assets = this.assets.back; break;
         }
+
+        assets = assets.sort( (a,b) => a.x - b.x )
         
         const padding = k.screenPadding
         const mex = this.player.center().x

@@ -69,8 +69,8 @@ export class GameEngine {
     }
 
     tick(){
-        this.fps_frames++
-        this.world.tick(this.fps_frames)
+        this.frame_count++
+        this.world.tick(this.frame_count)
         this.joypad.tick()
     }
 
@@ -104,9 +104,9 @@ export class GameEngine {
         ctx.scale(1, -1)
         ctx.translate(0, -cam.m_height)
  
-        //this.world.drawDebug()
-        this.world.drawMe(this.fps_frames)
-        this.world.drawBullets(this.fps_frames)
+        this.world.drawDebug()
+        this.world.drawRacers(this.frame_count)
+        this.world.drawBullets(this.frame_count)
 
         // draw foreground
         ctx.scale(1, -1)

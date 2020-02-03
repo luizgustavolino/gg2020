@@ -15,7 +15,7 @@ export class Bullet {
         const fd = new b2FixtureDef();
         fd.shape = shape;
         fd.density  = 5.0;
-        fd.friction = 0.0001;
+        fd.friction = 0.001;
   
         const bd = new b2BodyDef()
         bd.type = b2BodyType.b2_dynamicBody

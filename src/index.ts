@@ -1,5 +1,4 @@
 
-import * as _ from 'lodash'
 import { GameEngine } from './game/engine'
 
 function loop(time) {

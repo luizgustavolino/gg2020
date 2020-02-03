@@ -34,7 +34,7 @@ module.exports = {
       root: process.cwd()
     }),
     new HtmlWebpackPlugin({
-      inject: false,
+      inject: true,
       hash: true,
       template: "./" + src_Path + "/index.html",
       filename: "index.html"
