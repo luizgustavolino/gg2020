@@ -7,6 +7,7 @@ import { joy } from "./utils/joypad";
 import { Bullet } from "./utils/bullet";
 import * as k from "./constants"
 import { Racer } from "./utils/racer";
+import { Touch } from "./utils/touchpoint";
 import { b2FixtureDef } from "box2d.ts";
 
 class ImageAsset {
@@ -30,11 +31,11 @@ export class World {
     camera:Camera
     viewport:HTMLCanvasElement
     context:CanvasRenderingContext2D
-    
+    touch:Touch
+
     ground:box2d.b2Body
     player:Racer
     enemies:Racer[]
-
     bullets:Bullet[]
 
     images:HTMLImageElement[]
@@ -46,12 +47,14 @@ export class World {
     constructor(){
 
         this.debugDraw = new DebugDraw()
-        const gravity = new box2d.b2Vec2(0, -8.0)
+        const gravity = new box2d.b2Vec2(0.0, -8.0)
         this.world = new box2d.b2World(gravity)
         this.world.SetAllowSleeping(true)
         this.world.SetWarmStarting(true)
         this.world.SetDebugDraw(this.debugDraw)
 
+        this.touch = new Touch()
+        this.world.SetContactListener(this.touch)
         this.camera = g_camera
         this.camera.m_zoom = 10
 

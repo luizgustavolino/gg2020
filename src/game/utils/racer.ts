@@ -10,12 +10,6 @@ export class Racer {
     bA:b2Body
     bB:b2Body
 
-    bodies() : {back:b2Body, front:b2Body} {
-        return this.bA.GetPosition().x > this.bB.GetPosition().x
-            ? {back:this.bB, front:this.bA} :
-            {back:this.bA, front:this.bB}
-    }
-
     context:CanvasRenderingContext2D
     image:HTMLImageElement
     skin:number
@@ -127,8 +121,6 @@ export class Racer {
         const speed     = 1 - linearX/k.engineMaxImpulse
         const anmFrame  = Math.ceil(Math.abs((frame / 5 + (20 * speed)))) % 4
 
-        if(this.isPlayer) console.log(speed)
-        
         let mid = this.center()
         let midX = mid.x - 20
         
@@ -183,11 +175,25 @@ export class Racer {
     }
 
     fire() : Bullet {
+        let center = this.center()
         const a = this.angle()
-        let front = this.bodies().front
-        const x = front.GetPosition().x + Math.cos(a) * 30
-        const y = front.GetPosition().y + Math.sin(a) * 30
+        const x = center.x + Math.cos(a + k.pi/10) * 32
+        const y = center.y + Math.sin(a + k.pi/10) * 32
         return new Bullet({angle:a, x:x, y:y})
     }
 
+    wasHit(bullet:Bullet) {
+        console.log("WAS HIT")
+    }
+
+    bodies() : {back:b2Body, front:b2Body} {
+        return this.bA.GetPosition().x > this.bB.GetPosition().x
+            ? {back:this.bB, front:this.bA} :
+            {back:this.bA, front:this.bB}
+    }
+
+    hasBody(b:b2Body) : boolean {
+        const bf = this.bodies()
+        return bf.front == b || bf.back == b
+    }
 }

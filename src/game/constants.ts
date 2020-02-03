@@ -6,7 +6,7 @@ export const distanceBetweenMeBodies = 12
 export const baseImpulse = 8_000
 export const maxImpulse = engineMaxImpulse * 0.4
 export const firstAcellMultiplier = 2
-export const bulletSpeed = 10_000
+export const bulletSpeed = baseImpulse
 export const angleDecreaseRate = 9.5
 
 export const pit_location = {x:6560, y:0}
