@@ -2,7 +2,6 @@
 import { World } from "./world";
 import { Camera, g_camera } from "./utils/debugDraw";
 import { Joypad } from "./utils/joypad";
-import { throws } from "assert";
 
 export const hertz:number = 60.0
 export const screen = {width:720, height: 480}
@@ -104,7 +103,7 @@ export class GameEngine {
         ctx.scale(1, -1)
         ctx.translate(0, -cam.m_height)
  
-        this.world.drawDebug()
+        //this.world.drawDebug()
         this.world.drawBullets(this.frame_count)
         this.world.drawRacers(this.frame_count)
 

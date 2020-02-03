@@ -3,6 +3,7 @@ import { GameEngine } from "../engine";
 import * as k from "./../constants"
 import { Bullet } from "./bullet";
 import { throws } from "assert";
+import { prts } from "../world";
 
 export class Racer {
 
@@ -113,6 +114,16 @@ export class Racer {
             const iaAcel = 1.0 + Math.sin(frame/200.0) * 1.0
             this.accelerate(iaAcel)
         }
+
+        let x = this.center().x - 30 + (Math.random() * 20)
+        let y = this.center().y - 20 + (Math.random() * 10)
+
+        prts.addSmoke({x:x, y:y}) 
+
+        if(Math.abs(this.bodies().back.GetLinearVelocity().x) > 10) {
+            prts.addBubble({x:x, y:y})
+        }
+        
     }
 
     draw(frame){
@@ -177,8 +188,8 @@ export class Racer {
     fire() : Bullet {
         let center = this.center()
         const a = this.angle()
-        const x = center.x + Math.cos(a + k.pi/10) * 32
-        const y = center.y + Math.sin(a + k.pi/10) * 32
+        const x = center.x + Math.cos(a - k.pi/10) * 32
+        const y = center.y + Math.sin(a - k.pi/10) * 32
         return new Bullet({angle:a, x:x, y:y})
     }
 

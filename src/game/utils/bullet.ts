@@ -1,17 +1,20 @@
 import { b2Body, b2CircleShape, b2FixtureDef, b2BodyDef, b2BodyType } from "box2d.ts";
 import { GameEngine } from "../engine";
 import * as k from "./../constants";
+import { prts } from "../world";
 
 export class Bullet {
 
     body:b2Body
     bulletImage:HTMLImageElement
     seed:number
+    frames:number
     alreadyHit:boolean
 
     constructor(position:{x: number, y: number, angle:number}){
 
         this.seed = 0.5 + Math.random()* 0.5
+        this.frames = 0
         this.alreadyHit = false
         const shape = new b2CircleShape();
         shape.m_radius = 4;
@@ -44,6 +47,9 @@ export class Bullet {
     }
 
     tick(){
+
+        this.frames++;
+
         if(this.alreadyHit) {
             
             if (this.body == null) return
@@ -53,8 +59,14 @@ export class Bullet {
             this.body = null
 
         } else {
+
             const a = this.body.GetAngle()
             const c = this.body.GetWorldCenter()
+
+            if(Math.random() < 0.6) {
+                prts.addBubble({x:c.x, y:c.y})
+            }
+
             this.body.ApplyLinearImpulse({
                 x: Math.cos(a) * k.bulletSpeed * this.seed,
                 y: Math.sin(a) * k.bulletSpeed * this.seed} , c )
@@ -62,19 +74,18 @@ export class Bullet {
     }
 
     draw(){
-
-        if(this.alreadyHit) {
-
-        } else {
+        if(!this.alreadyHit) {
             const ctx = GameEngine.shared().world.context
             const p  = this.body.GetWorldCenter()
-            const s  = 8
+            
+            let s  = 8 
+            if (this.frames < 8) s *= 0.5 + (this.frames/8) * 0.5
             const ms = s/2
+
             ctx.drawImage(this.bulletImage,
                 0, 0, 12, 12, 
                 p.x - ms, p.y -ms, s, s)
         }
-        
     }
 
     explode(){

@@ -9,6 +9,7 @@ import * as k from "./constants"
 import { Racer } from "./utils/racer";
 import { Touch } from "./utils/touchpoint";
 import { b2FixtureDef } from "box2d.ts";
+import { Particles } from "./particles/particles";
 
 class ImageAsset {
     x:number
@@ -24,6 +25,8 @@ class ImageAsset {
     }
 }
 
+export let prts:Particles = null
+
 export class World {
 
     world: box2d.b2World
@@ -32,6 +35,7 @@ export class World {
     viewport:HTMLCanvasElement
     context:CanvasRenderingContext2D
     touch:Touch
+    partiles:Particles
 
     ground:box2d.b2Body
     player:Racer
@@ -55,6 +59,10 @@ export class World {
 
         this.touch = new Touch()
         this.world.SetContactListener(this.touch)
+
+        this.partiles = new Particles()
+        prts = this.partiles
+
         this.camera = g_camera
         this.camera.m_zoom = 10
 
@@ -191,6 +199,7 @@ export class World {
 
         this.player.tick(frame)
         this.enemies.forEach( e => e.tick(frame))
+        this.partiles.tick(frame)
 
         this.bullets.forEach(bullet => bullet.tick())
         if (joy().fire.isDown()) {
@@ -224,6 +233,7 @@ export class World {
 
     drawBullets(frame:number){
         this.bullets.forEach( b => b.draw())
+        this.partiles.draw(frame)
     }
 
     draw(layer:("front"|"back")) {
@@ -258,3 +268,4 @@ export class World {
         })
     }
 }
+
