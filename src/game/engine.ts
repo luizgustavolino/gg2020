@@ -103,9 +103,11 @@ export class GameEngine {
         ctx.scale(1, -1)
         ctx.translate(0, -cam.m_height)
  
-        //this.world.drawDebug()
+        this.world.drawDebug()
         this.world.drawBullets(this.frame_count)
+        this.world.drawParticles(this.frame_count, {even:true, odd:false})
         this.world.drawRacers(this.frame_count)
+        this.world.drawParticles(this.frame_count, {even:false, odd:true})
 
         // draw foreground
         ctx.scale(1, -1)

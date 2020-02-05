@@ -233,7 +233,10 @@ export class World {
 
     drawBullets(frame:number){
         this.bullets.forEach( b => b.draw())
-        this.partiles.draw(frame)
+    }
+
+    drawParticles(frame:number, kind:{even:boolean, odd:boolean}){
+        this.partiles.draw(frame, kind)
     }
 
     draw(layer:("front"|"back")) {

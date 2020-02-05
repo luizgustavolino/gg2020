@@ -21,6 +21,7 @@ export class ObjectLayer {
 export class ImageLayer {
     type:"imagelayer"
     image:string
+    id:number
     offsetx:number
     offsety:number
 }
@@ -30,6 +31,7 @@ export class Layer {
     layers?: Layer[];
     objects?: Object[];
     image?:string
+    id:number
     offsetx?:number
     offsety?:number
     name:String

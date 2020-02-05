@@ -28,9 +28,12 @@ export class Particles {
         this.particles = this.particles.filter( p => p.live())
     }
 
-    draw(frame:number){
+    draw(frame:number, kind:{even:boolean, odd:boolean}){
+        let count = 0
         for (const particle of this.particles) {
-            particle.draw(frame)
+            const even = (count++)%2 == 0
+            if(even && kind.even) particle.draw(frame)
+            if(!even && kind.odd) particle.draw(frame)
         }
     }
 

@@ -4,6 +4,7 @@ import * as k from "./../constants"
 import { Bullet } from "./bullet";
 import { throws } from "assert";
 import { prts } from "../world";
+import { joy } from "./joypad";
 
 export class Racer {
 
@@ -110,20 +111,23 @@ export class Racer {
             this.bB.SetPosition({x:-k.distanceBetweenMeBodies, y:pB.y})
         }
 
+        let addBubbles = false
+
         if (!this.isPlayer){
             const iaAcel = 1.0 + Math.sin(frame/200.0) * 1.0
             this.accelerate(iaAcel)
+            addBubbles = true
+        } else {
+            addBubbles = (joy().accelerate.isPressed() || joy().accelerate.isDown())
         }
 
-        let x = this.center().x - 30 + (Math.random() * 20)
-        let y = this.center().y - 20 + (Math.random() * 10)
+        let center = this.center()
+        const a = this.angle()
+        const x = center.x + Math.cos(a - k.pi * 0.8) * 21
+        const y = center.y + Math.sin(a - k.pi * 0.8) * 21
 
-        prts.addSmoke({x:x, y:y}) 
-
-        if(Math.abs(this.bodies().back.GetLinearVelocity().x) > 10) {
-            prts.addBubble({x:x, y:y})
-        }
-        
+        if(addBubbles) prts.addBubble({x:x, y:y})
+        if (frame%3 == 0 ) prts.addSmoke({x:x, y:y})
     }
 
     draw(frame){
