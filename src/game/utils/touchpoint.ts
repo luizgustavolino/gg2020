@@ -7,15 +7,14 @@ export class Touch extends b2ContactListener {
     public BeginContact(contact: b2Contact): void {
         
 
-
-
         this.between(contact, k.colide.bullets, k.colide.racers, (a,b) => {
-
+            const bullet = this.bulletFromBody(a)
+            if(bullet != null) bullet.explode(true)
         })
 
         this.between(contact, k.colide.bullets, k.colide.scenery, (a,b) => {
             const bullet = this.bulletFromBody(a)
-            if(bullet != null) bullet.explode()
+            if(bullet != null) bullet.explode(false)
         })
     }
 

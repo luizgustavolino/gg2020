@@ -4,7 +4,7 @@ import { Camera, g_camera } from "./utils/debugDraw";
 import { Joypad } from "./utils/joypad";
 
 export const hertz:number = 60.0
-export const screen = {width:720, height: 480}
+export const gamescreen = {width:720, height: 480}
 
 export class GameEngine {
 
@@ -67,6 +67,10 @@ export class GameEngine {
         this.joypad = new Joypad()
     }
 
+    canvasScale() : number {
+        return window.devicePixelRatio
+    }
+
     tick(){
         this.frame_count++
         this.world.tick(this.frame_count)
@@ -103,7 +107,7 @@ export class GameEngine {
         ctx.scale(1, -1)
         ctx.translate(0, -cam.m_height)
  
-        this.world.drawDebug()
+        //this.world.drawDebug() 
         this.world.drawBullets(this.frame_count)
         this.world.drawParticles(this.frame_count, {even:true, odd:false})
         this.world.drawRacers(this.frame_count)

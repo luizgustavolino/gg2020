@@ -3,6 +3,7 @@ import { GameEngine } from "../engine"
 import { Particle } from "./particle"
 import { Bubble } from "./bubble"
 import { Smoke } from "./smoke"
+import { Explosion } from "./explosion"
 
 export class Particles {
 
@@ -18,6 +19,10 @@ export class Particles {
 
     addSmoke(position:{x:number, y:number}) {
         this.particles.push(new Smoke(position))
+    }
+
+    addExplosion(position:{x:number, y:number}) {
+        this.particles.push(new Explosion(position))
     }
 
     tick(frame:number) {

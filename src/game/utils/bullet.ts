@@ -10,6 +10,7 @@ export class Bullet {
     seed:number
     frames:number
     alreadyHit:boolean
+    hitWithFire:boolean
 
     constructor(position:{x: number, y: number, angle:number}){
 
@@ -53,10 +54,21 @@ export class Bullet {
         if(this.alreadyHit) {
             
             if (this.body == null) return
+
+            const p = this.body.GetWorldCenter()
             let bullets = GameEngine.shared().world.bullets
             bullets = bullets.filter(b => b != this)
             GameEngine.shared().world.world.DestroyBody(this.body)
             this.body = null
+
+            if (this.hitWithFire) {
+                prts.addExplosion({x: p.x ,y: p.y})
+            }
+
+            for (let i = 0; i < 20; i++) {
+                prts.addBubble({x: p.x + Math.random() * 30 - 15,
+                                y: p.y + Math.random() * 30 - 15})
+            }
 
         } else {
 
@@ -88,7 +100,9 @@ export class Bullet {
         }
     }
 
-    explode(){
+    explode(fire:boolean = false){
+        if (this.frames < 5) return 
+        this.hitWithFire = fire
         this.alreadyHit = true
     }
 }

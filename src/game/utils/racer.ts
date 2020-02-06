@@ -42,9 +42,9 @@ export class Racer {
     center() : b2Vec2 {
         const bf = this.bodies()
         const x1 = bf.back.GetWorldCenter().x
-        const y1 = bf.back.GetWorldCenter().y
+        const y1 = bf.back.GetWorldCenter().y + 12
         const x2 = bf.front.GetWorldCenter().x
-        const y2 = bf.front.GetWorldCenter().y
+        const y2 = bf.front.GetWorldCenter().y + 12
         return new b2Vec2((x1 + x2)/2.0,(y1+y2)/2.0)
     }
 
@@ -114,7 +114,7 @@ export class Racer {
         let addBubbles = false
 
         if (!this.isPlayer){
-            const iaAcel = 1.0 + Math.sin(frame/200.0) * 1.0
+            const iaAcel = 1.0 + Math.sin( (this.skin * frame)/200.0) * 1.0
             this.accelerate(iaAcel)
             addBubbles = true
         } else {
@@ -126,7 +126,7 @@ export class Racer {
         const x = center.x + Math.cos(a - k.pi * 0.8) * 21
         const y = center.y + Math.sin(a - k.pi * 0.8) * 21
 
-        if(addBubbles) prts.addBubble({x:x, y:y})
+        if(addBubbles && frame%2 == 0 ) prts.addBubble({x:x, y:y})
         if (frame%3 == 0 ) prts.addSmoke({x:x, y:y})
     }
 

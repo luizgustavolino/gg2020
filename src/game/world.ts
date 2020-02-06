@@ -1,6 +1,6 @@
 import { DebugDraw, Camera, g_camera } from "./utils/debugDraw";
 import * as box2d from "box2d.ts"
-import { hertz } from "./engine"
+import { hertz, GameEngine, gamescreen } from "./engine"
 import { data } from "../assets/map";
 import { Point, Layer } from "./utils/map";
 import { joy } from "./utils/joypad";
@@ -10,6 +10,9 @@ import { Racer } from "./utils/racer";
 import { Touch } from "./utils/touchpoint";
 import { b2FixtureDef } from "box2d.ts";
 import { Particles } from "./particles/particles";
+
+
+let log = false
 
 class ImageAsset {
     x:number
@@ -68,6 +71,7 @@ export class World {
 
         this.viewport = <HTMLCanvasElement> document.getElementById("viewport")
         this.context = this.viewport.getContext("2d")
+        const scale = GameEngine.shared().canvasScale()
         this.debugDraw.m_ctx = this.context
 
         this.bullets = []
@@ -163,8 +167,8 @@ export class World {
 
         const shape = new box2d.b2EdgeShape()
         shape.Set(
-            new box2d.b2Vec2(ax, screen.height - ay),
-            new box2d.b2Vec2(bx, screen.height - by))
+            new box2d.b2Vec2(ax, 800 - ay),
+            new box2d.b2Vec2(bx, 800 - by))
 
         const fd = new b2FixtureDef();
         fd.shape = shape;
